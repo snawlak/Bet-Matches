@@ -1,0 +1,258 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+
+    <changeSet author="jakub" id="schema">
+        <sql>
+            create table bet_results
+            (
+            id_match int not null,
+            id_user UUID not null,
+            team_first_score int null,
+            team_second_score int null,
+            primary key (id_match, id_user)
+            );
+
+            create table leagues
+            (
+            id serial primary key,
+            description varchar(255) null,
+            name varchar(255) not null,
+            constraint UK_n8qcbpi2pjf8bbenfm9le3v36
+            unique (name)
+            );
+
+            create table stadiums
+            (
+            id serial primary key,
+            capacity int not null,
+            city varchar(255) not null,
+            country varchar(255) not null,
+            name varchar(255) not null
+            );
+
+            create table teams
+            (
+            id serial primary key,
+            id_rapid_api int not null,
+            name varchar(255) not null,
+            logo varchar(255) null,
+            place int not null
+            --constraint UK_ncy50ie8wmxtrd46h5r78q71g
+            --unique(id_rapid_api)
+            );
+
+            create table matches
+            (
+            id serial primary key,
+            id_rapid_api int not null,
+            match_date timestamp with time zone not null,
+            match_day int not null,
+            status varchar(255) not null,
+            team_first_score int not null,
+            team_second_score int not null,
+            id_stadium int not null,
+            id_team_first int not null,
+            id_team_second int not null,
+            --constraint UK_ncy50ie8wmxtrd46h5r78q71h
+            --unique(id_rapid_api),
+            constraint FK3gdwvwl50w8iv1j40v3xqixi3
+            foreign key (id_team_first) references teams (id),
+            constraint FKa6a9kdc02e160rokvtib4jjrq
+            foreign key (id_stadium) references stadiums (id),
+            constraint FKdh7gstwq2y0jsyhpj1mvpvvh2
+            foreign key (id_team_second) references teams (id)
+            );
+
+            create table players
+            (
+            id serial primary key,
+            id_rapid_api int not null,
+            first_name varchar(255) not null,
+            last_name varchar(255) not null,
+            nationality varchar(255) not null,
+            age int not null,
+            id_team int not null,
+            position varchar(255) not null,
+            goals int not null,
+            --constraint UK_ncy50ie8wmxtrd46h5r78q71i
+            --unique(id_rapid_api),
+            constraint FK9fsf2q8depkva936mj3e4wya9
+            foreign key (id_team) references teams (id)
+            );
+
+            create table users
+            (
+            id UUID PRIMARY KEY,
+            admin boolean not null,
+            email varchar(255) not null,
+            password varchar(255) not null,
+            points int not null,
+            username varchar(255) not null,
+            constraint UK_ncy50ie8wmxtrd46h5r78q71a
+            unique (username)
+            );
+
+            create table users_leagues
+            (
+            id_user UUID not null,
+            id_league int not null,
+            constraint FKgiwqqvybtol9kcpo8f5i2r524
+            foreign key (id_user) references users (id),
+            constraint FKsiy5hgh4pr0w4rugv0arn2iis
+            foreign key (id_league) references leagues (id)
+            );
+
+            create table bet_extra
+            (
+            id_user UUID primary key,
+            id_player int null,
+            id_team int null,
+            constraint FKg6ugy60cj3wuwyr8vvn0fs982
+            foreign key (id_team) references teams (id),
+            constraint FKk5vhay64v5elmowjbyggx8l70
+            foreign key (id_player) references players (id)
+            );
+        </sql>
+    </changeSet>
+
+
+    <!--    <changeSet author="jakub" id="data">-->
+    <!--        <sql>-->
+    <!--            &#45;&#45; TEAMS INFO *******************************************-->
+    <!--            &#45;&#45; TEAM DATA-->
+    <!--            insert into teams (id_rapid_api, name, place) values (1, 'Serbia', 5);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (2, 'Hungary', 6);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (3, 'Poland', 1);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (4, 'Germany', 7);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (5, 'Spain', 2);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (6, 'France', 3);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (7, 'Portugal', 8);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (8, 'England', 4);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (9, 'Italy', 9);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (10, 'Belgium', 10);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (11, 'Holland', 12);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (12, 'Russia', 11);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (13, 'Ukraine', 13);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (14, 'sweden', 14);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (17, 'Norway', 15);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (18, 'Finland', 16);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (19, 'Switzerland', 17);-->
+    <!--            insert into teams (id_rapid_api, name, place) values (20, 'Croatia', 18);-->
+
+    <!--            &#45;&#45; PLAYER DATA;-->
+    <!--            insert into players(id_rapid_api, first_name, last_name, nationality, age, position, id_team, goals)-->
+    <!--            values (1, 'Robert', 'Lewandowski', 'Poland', 32, 'ATTACKER', 3, 5);-->
+    <!--            insert into players(id_rapid_api, first_name, last_name, nationality, age, position, id_team, goals)-->
+    <!--            values (2, 'Wojciech', 'Szczęsny', 'Poland', 28, 'GOALKEEPER', 3, 0);-->
+    <!--            insert into players(id_rapid_api, first_name, last_name, nationality, age, position, id_team, goals)-->
+    <!--            values (3, 'Sergio', 'Ramos', 'Spain', 32, 'DEFENDER', 5, 5);-->
+    <!--            insert into players(id_rapid_api, first_name, last_name, nationality, age, position, id_team, goals)-->
+    <!--            values (4, 'Mats', 'Hummels', 'Germany', 33, 'DEFENDER', 4, 7);-->
+    <!--            insert into players(id_rapid_api, first_name, last_name, nationality, age, position, id_team, goals)-->
+    <!--            values (5, 'Kylian', 'Mbappe', 'France', 21, 'ATTACKER', 6, 7);-->
+    <!--            insert into players(id_rapid_api, first_name, last_name, nationality, age, position, id_team, goals)-->
+    <!--            values (6, 'Harry', 'Kane', 'England', 28, 'ATTACKER', 8, 5);-->
+    <!--            insert into players(id_rapid_api, first_name, last_name, nationality, age, position, id_team, goals)-->
+    <!--            values (7, 'Giorgio', 'Chellini', 'Italy', 35, 'DEFENDER', 9, 5);-->
+    <!--            insert into players(id_rapid_api, first_name, last_name, nationality, age, position, id_team, goals)-->
+    <!--            values (8, 'Eden', 'Hazard', 'Belgium', 29, 'MIDFIELDER', 10, 5);-->
+    <!--            insert into players(id_rapid_api, first_name, last_name, nationality, age, position, id_team, goals)-->
+    <!--            values (9, 'Cristiano', 'Ronaldo', 'Portugal', 34, 'ATTACKER', 7, 5);-->
+    <!--            insert into players(id_rapid_api, first_name, last_name, nationality, age, position, id_team, goals)-->
+    <!--            values (10, 'Grzegorz', 'Krychowiak', 'Poland', 28, 'MIDFIELDER', 3, 1);-->
+
+    <!--            &#45;&#45; MATCHES INFO ***************************************************;-->
+    <!--            &#45;&#45; STADIUM DATA;-->
+    <!--            insert into stadiums (name, country, city, capacity)-->
+    <!--            values ('Wembley', 'England', 'London', 90000);-->
+    <!--            insert into stadiums (name, country, city, capacity)-->
+    <!--            values ('Stadio Olimpico','Italy', 'Rome', 73000);-->
+    <!--            insert into stadiums (name, country, city, capacity)-->
+    <!--            values ('Alianz Arena', 'Germay', 'Munich', 75000);-->
+    <!--            insert into stadiums (name, country, city, capacity)-->
+    <!--            values ('Baku Olympic Stadium','Azerbaijan', 'Baku', 65000);-->
+    <!--            insert into stadiums (name, country, city, capacity)-->
+    <!--            values ('St. Petersburg Stadium','Russia', 'Saint Petersburg', 56000);-->
+    <!--            insert into stadiums (name, country, city, capacity)-->
+    <!--            values ('Puskás Ferenc Stadium', 'Hungary', 'Budapest', 68000);-->
+    <!--            insert into stadiums (name, country, city, capacity)-->
+    <!--            values ('San Mamés Zelaia', 'Spain', 'Bilbao', 53000);-->
+
+    <!--            &#45;&#45; MATCHES DATA;-->
+    <!--            insert into matches (id_rapid_api, id_team_first, id_team_second, match_date, id_stadium, team_first_score,-->
+    <!--            team_second_score, status) values (1, 3, 4, '2020-01-23T21:00:00+00:00', 1, 1, 0, 'NOT_STARTED');-->
+    <!--            insert into matches (id_rapid_api, id_team_first, id_team_second, match_date, id_stadium, team_first_score,-->
+    <!--            team_second_score, status) values (2, 5, 6, '2019-08-16T21:00:00+00:00', 2, 0, 2, 'NOT_STARTED');-->
+    <!--            insert into matches (id_rapid_api, id_team_first, id_team_second, match_date, id_stadium, team_first_score,-->
+    <!--            team_second_score, status) values (3, 7, 8, '2019-08-16T21:00:00+00:00', 3, 2, 1, 'NOT_STARTED');-->
+    <!--            insert into matches (id_rapid_api, id_team_first, id_team_second, match_date, id_stadium, team_first_score,-->
+    <!--            team_second_score, status) values (4, 9, 10, '2019-08-16T21:00:00+00:00', 4, 3, 3, 'NOT_STARTED');-->
+    <!--            insert into matches (id_rapid_api, id_team_first, id_team_second, match_date, id_stadium, team_first_score,-->
+    <!--            team_second_score, status) values (5, 6, 4, '2019-08-16T21:00:00+00:00', 5, 1, 1, 'NOT_STARTED');-->
+
+    <!--            &#45;&#45; USER BET *******************************************************;-->
+    <!--            &#45;&#45; USER DATA;-->
+    <!--            insert into users (username, email, password, admin, points) values ( 'snawlak',-->
+    <!--            'snawlak@email.com', '{bcrypt}KSJADBAK>@!#NKASJFHAIUQR@.>@$KJAFA', false, 0);-->
+    <!--            insert into users (username, email, password, admin, points) values ( 'Mati', 'mati@gmail.com',-->
+    <!--            '{bcrypt}$2y$12$xhHz3Wq/NAINaAOOSzCoy.hJsWJpMWTQ.nETrGA1pSyhFko/0N0Lm', false, 98);-->
+    <!--            insert into users (username, email, password, admin, points) values ( 'SEBIX', 'sebix2@email.com',-->
+    <!--            '{bcrypt}$2y$09$WGvGlOjWfP4bEn6.Ej7YJOivRA4AjJTxVh4YGMkpRYjb/iQluFrZm', false, 77);-->
+    <!--            insert into users (username, email, password, admin, points) values ( 'Gruby', 'Gruby@gmail.com',-->
+    <!--            '{bcrypt}$2y$12$Reh3laU/8WQftxEn35tus.oMrszs8P4VRMKe.FHh8FhAkHaIYX.9y', false, 35);-->
+    <!--            insert into users (username, email, password, admin, points) values ( 'Wozniak',-->
+    <!--            'Wozniak@gmail.com', '{bcrypt}$2y$09$WGvGlOjWfP4bEn6/NAINaAOOSzCoy.hJsWJpMWTQ.nETrGA1pSyhFko/0N0Lm', false,-->
+    <!--            44);-->
+    <!--            insert into users (username, email, password, admin, points) values ( 'Dlugi', 'Dlugi@gmail.com',-->
+    <!--            '{bcrypt}$2y$12$xhHz3Wq/NAINaAOOSzCoy.oMrszs8P4VRMKe.nETrGA1pSyhFko/0N0Lm', false, 28);-->
+    <!--            insert into users ( username, email, password, admin, points) values ( 'Jackson',-->
+    <!--            'Jackson@gmail.com', '{bcrypt}$2y$12$xhHz3Wq/NAINaAOOSzCoy.hJsWJpMWTQ.nETrGA1pSyhFko/iQluFrZm', false, 8);-->
+    <!--            insert into users ( username, email, password, admin, points) values ( 'KubaAdmin',-->
+    <!--            'betEuroCup@gmail.com', '{bcrypt}$2y$12$xhHz3Wq/NAINaAOOSzCoy.hJsWJpMWTQ.nETrGA1pSyhFko/iQluFrZm', true,-->
+    <!--            19);-->
+
+    <!--            &#45;&#45; League Data;-->
+    <!--            insert into leagues (name, description) values ('LigaLegend', 'Liga najlepszych obstawiaczy');-->
+    <!--            insert into leagues (name, description) values ('Team Jazda', '');-->
+    <!--            insert into leagues (name, description) values ('Ekstra Liga', 'Liga ekstra opis');-->
+    <!--            insert into leagues (name, description) values ('Junikowo', 'Liga Junikowianinów');-->
+    <!--            insert into leagues (name, description) values ('Mokotów sharks', 'Liga rekinow z Mokotowa');-->
+
+    <!--            &#45;&#45; User_league Data;-->
+    <!--            insert into users_leagues (id_user, id_league) values (2, 1);-->
+    <!--            insert into users_leagues (id_user, id_league) values (2, 2);-->
+    <!--            insert into users_leagues (id_user, id_league) values (3, 1);-->
+    <!--            insert into users_leagues (id_user, id_league) values (3, 3);-->
+    <!--            insert into users_leagues (id_user, id_league) values (4, 2);-->
+    <!--            insert into users_leagues (id_user, id_league) values (5, 2);-->
+    <!--            insert into users_leagues (id_user, id_league) values (5, 3);-->
+
+    <!--            &#45;&#45; User Player Team;-->
+    <!--            insert into users_players_teams (id_team, id_player) values (5, 5);-->
+    <!--            insert into users_players_teams (id_team, id_player) values (3, 4);-->
+    <!--            insert into users_players_teams (id_team, id_player) values (3, 4);-->
+    <!--            insert into users_players_teams (id_team, id_player) values (4, 5);-->
+    <!--            insert into users_players_teams (id_team, id_player) values (5, 4);-->
+    <!--            insert into users_players_teams (id_team, id_player) values (4, 4);-->
+    <!--            insert into users_players_teams (id_team, id_player) values (6, 7);-->
+    <!--            insert into users_players_teams (id_team, id_player) values (8, 7);-->
+
+    <!--            &#45;&#45; User Bet Match Results;-->
+    <!--            insert into bet_results (id_user, id_match, team_first_score, team_second_score) VALUES (2, 2, 2, 2);-->
+    <!--            insert into bet_results (id_user, id_match, team_first_score, team_second_score) VALUES (2, 3, 2, 1);-->
+    <!--            insert into bet_results (id_user, id_match, team_first_score, team_second_score) VALUES (2, 4, 2, 1);-->
+    <!--            insert into bet_results (id_user, id_match, team_first_score, team_second_score) VALUES (3, 3, 2, 1);-->
+    <!--            insert into bet_results (id_user, id_match, team_first_score, team_second_score) VALUES (3, 5, 2, 0);-->
+    <!--            insert into bet_results (id_user, id_match, team_first_score, team_second_score) VALUES (4, 3, 2, 1);-->
+    <!--            insert into bet_results (id_user, id_match, team_first_score, team_second_score) VALUES (4, 4, 2, 2);-->
+    <!--            insert into bet_results (id_user, id_match, team_first_score, team_second_score) VALUES (5, 3, 2, 0);-->
+    <!--            insert into bet_results (id_user, id_match, team_first_score, team_second_score) VALUES (6, 2, 3, 1);-->
+    <!--            insert into bet_results (id_user, id_match, team_first_score, team_second_score) VALUES (6, 3, 5, 2);-->
+    <!--        </sql>-->
+    <!--    </changeSet>-->
+
+</databaseChangeLog>

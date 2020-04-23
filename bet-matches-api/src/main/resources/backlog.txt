@@ -1,0 +1,6 @@
+TODO:
+-all entity to dto
+-model mapper to all dto -> entity/ entity -> dto
+-code review from Albert
+-Security
+-FrontEnd
